@@ -1,0 +1,167 @@
+/* src/ChatWidget.css */
+.chat-widget-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 360px;
+  height: 500px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.chat-toggle-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.chat-toggle-button:hover {
+  background-color: #0056b3;
+  transform: scale(1.1);
+}
+
+/* Chat bubble icon when closed */
+.chat-toggle-button[data-state="closed"]::before {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 20px;
+  background: white;
+  border-radius: 12px 12px 12px 0;
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 70% 70%, 50% 100%, 0 70%);
+}
+
+/* Speech bubble "dots" effect */
+.chat-toggle-button[data-state="closed"]::after {
+  content: '•••';
+  position: absolute;
+  color: #007bff;
+  font-size: 10px;
+  letter-spacing: 2px;
+  top: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* "X" icon when open */
+.chat-toggle-button[data-state="open"]::before {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 4px;
+  background: white;
+  transform: rotate(45deg);
+}
+
+.chat-toggle-button[data-state="open"]::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 4px;
+  background: white;
+  transform: rotate(-45deg);
+}
+
+/* Adjust button position when widget is open */
+.chat-widget-container:not(.hidden) + .chat-toggle-button {
+  bottom: 540px; /* Adjust based on widget height + gap */
+}
+
+/* Ensure the widget is hidden when not open */
+.chat-widget-container.hidden {
+  display: none;
+}
+
+
+.chat-widget {
+  max-width: 400px;
+  height: 400px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.chat-widget--loading,
+.chat-widget--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-widget--error {
+  color: #666;
+}
+
+/* Loading container styles */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 18px;
+  gap: 10px;
+}
+
+/* Main app container */
+.app-container {
+  padding: 20px;
+}
+
+/* Header styles */
+.app-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.app-header h1 {
+  margin: 0 0 10px 0;
+}
+
+.session-id {
+  color: #666;
+  font-size: 20px;
+  margin: 5px 0;
+}
+
+.connection-status {
+  color: #28a745;
+  font-size: 20px;
+  margin: 5px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 15px;
+  }
+  
+  .loading-container {
+    font-size: 16px;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .app-header h1 {
+    font-size: 24px;
+  }
+  
+
+}
