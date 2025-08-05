@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { Channel, ChannelHeader, MessageList, MessageInput, Window } from 'stream-chat-react';
 import { useChatContext } from 'stream-chat-react';
-import { Channel as StreamChannel } from 'stream-chat';
 
 interface ChatWidgetProps {
   customerId: string;
@@ -9,34 +8,19 @@ interface ChatWidgetProps {
 
 const ChatWidget: React.FC<ChatWidgetProps> = ({ customerId }) => {
   const { client } = useChatContext();
-  const [channel, setChannel] = useState<StreamChannel | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const initChannel = async () => {
-      try {
-        const formattedCustomerId = customerId.startsWith('customer-') 
-          ? customerId 
-          : `customer-${customerId}`;
+  const channel = useMemo(() => {
+    if (!client || !customerId) return null;
 
-        const channelId = `feedback-${formattedCustomerId}`;
-        
-        const newChannel = client.channel('messaging', channelId, {
-          members: [formattedCustomerId, 'support-bot'],
-        });
+    const formattedCustomerId = customerId.startsWith('customer-') 
+      ? customerId 
+      : `customer-${customerId}`;
 
-        await newChannel.watch();
-        setChannel(newChannel);
-      } catch (error) {
-        console.error('Error initializing channel:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (client && customerId) {
-      initChannel();
-    }
+    const channelId = `feedback-${formattedCustomerId}`;
+    
+    return client.channel('messaging', channelId, {
+      members: [formattedCustomerId, 'support-bot'],
+    });
   }, [client, customerId]);
 
   const handleMessageSubmit = async (params: { 
@@ -76,14 +60,6 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ customerId }) => {
       console.error('Network error:', error);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="chat-widget chat-widget--loading">
-        Loading chat...
-      </div>
-    );
-  }
 
   if (!channel) {
     return (
