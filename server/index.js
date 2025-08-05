@@ -29,12 +29,12 @@ const streamClient = StreamChat.getInstance(process.env.STREAM_API_KEY, process.
 app.get('/api/health', async (req, res) => {
   try {
     const slackTest = await slack.auth.test();
-    const streamTest = await streamClient.queryUsers({ id: 'test' });
+    const testToken = streamClient.createToken('health-check-user');
     
     res.json({
       status: 'healthy',
       slack: { connected: true, team: slackTest.team },
-      stream: { connected: true }
+      stream: { connected: true, tokenGenerated: !!testToken }
     });
   } catch (error) {
     res.status(500).json({
@@ -52,29 +52,30 @@ function generateStreamToken(userId) {
 // Create Stream Chat user
 async function createStreamUser(userId, name, role = 'user') {
   try {
-    await streamClient.upsertUser({
+    await streamClient.upsertUsers([{
       id: userId,
       name: name || `Customer ${userId}`,
       role: role,
       image: role === 'admin' ? 'https://via.placeholder.com/40x40.png?text=BOT' : 'https://via.placeholder.com/40x40.png?text=USER'
-    });
+    }]);
     return true;
   } catch (error) {
+    console.error('Error creating user:', error);
     return false;
   }
 }
 
-// Initialize support bot user 
 async function initializeSupportBot() {
   try {
-    await streamClient.upsertUser({
+    await streamClient.upsertUsers([{
       id: 'support-bot',
       name: 'Support Team',
       role: 'admin',
       image: 'https://via.placeholder.com/40x40.png?text=BOT'
-    });
+    }]);
     return true;
   } catch (error) {
+    console.error('Error initializing support bot:', error);
     return false;
   }
 }
@@ -96,6 +97,7 @@ async function getOrCreateCustomerChannel(customerId) {
     await channel.create();
     return channel;
   } catch (error) {
+    console.error('Error in getOrCreateCustomerChannel:', error);
     return null;
   }
 }
@@ -161,7 +163,6 @@ app.post('/api/feedback/submit', async (req, res) => {
         text: `💬 *New Chat Message*\n*From:* ${formattedCustomerId}\n*Message:* ${messageText}`
       });
     } catch (slackError) {
-      // Don't fail the request if Slack fails
     }
 
     res.status(200).json({ 
@@ -219,7 +220,6 @@ app.post('/api/stream-token', async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-// Start server
 async function startServer() {
   try {
     await initializeSupportBot();
